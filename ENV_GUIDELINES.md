@@ -1,0 +1,25 @@
+# 환경 명명 규칙 및 인프라 분리 가이드
+
+일관된 명명 규칙(Naming Convention)과 물리적/논리적 환경 분리는 안정적인 운영의 기초입니다.
+
+## 명명 규칙 (Naming Convention)
+- **프로젝트 명**: `[서비스명]-[플랫폼]` (예: `antigravity-web`, `antigravity-api`)
+- **파이프라인 ID**: `[CI/CD]-[서비스명]-[기능]` (예: `ci-auth-service`, `cd-auth-service-rolling`)
+- **커넥터 ID**: `[유형]-[환경]-[용도]` (예: `k8s-prod-cluster`, `aws-dev-iam`)
+
+## 환경 분리 전략
+1. **Development (Dev)**:
+   - **목적**: 개발자 자유 테스트 및 기능 검증.
+   - **인프라**: 별도의 Shared Cluster 또는 Namespace 단위 분리.
+2. **Staging (QA)**:
+   - **목적**: 운영 환경과 동일한 설정에서의 최종 검증.
+   - **인프라**: 운영 클러스터와 동일한 스펙 또는 Prod-like 환경.
+3. **Production (Prod)**:
+   - **목적**: 실제 사용자 서비스.
+   - **인프라**: 물리적으로 분리된 전용 클러스터/VPC 권장.
+
+## 태그(Tag) 전략
+- 모든 리소스(서비스, 환경, 파이프라인)에는 아래 태그를 필수 적용합니다.
+  - `owner`: 담당 팀명
+  - `service_tier`: 1(Critical), 2(Major), 3(Normal)
+  - `environment`: dev, qa, prod

@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: harness-delegate-ng
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    harness.io/name: kubernetes-delegate
+  name: kubernetes-delegate
+  namespace: harness-delegate-ng
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      harness.io/name: kubernetes-delegate
+  template:
+    metadata:
+      labels:
+        harness.io/name: kubernetes-delegate
+    spec:
+      containers:
+      - image: harness/delegate:latest
+        imagePullPolicy: Always
+        name: delegate
+        env:
+        - name: ACCOUNT_ID
+          value: <REPLACE_WITH_ACCOUNT_ID>
+        - name: DELEGATE_TOKEN
+          value: <REPLACE_WITH_DELEGATE_TOKEN>
+        - name: DELEGATE_NAME
+          value: k8s-cluster-delegate
+        - name: NEXT_GEN
+          value: "true"
+        - name: DELEGATE_TYPE
+          value: "KUBERNETES"
+        resources:
+          limits:
+            cpu: "1.0"
+            memory: "2Gi"
+          requests:
+            cpu: "0.5"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10

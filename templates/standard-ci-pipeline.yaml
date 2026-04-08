@@ -1,0 +1,41 @@
+pipeline:
+  name: Standard-CI-Pipeline
+  identifier: Standard_CI_Pipeline
+  projectIdentifier: <PROJECT_ID>
+  orgIdentifier: <ORG_ID>
+  tags: {}
+  stages:
+    - stage:
+        name: Build and Push
+        identifier: Build_and_Push
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: <K8S_CONNECTOR_ID>
+              namespace: harness-build-pods
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Unit Test
+                  identifier: Unit_Test
+                  spec:
+                    connectorRef: <DOCKER_CONNECTOR_ID>
+                    image: node:18-alpine
+                    shell: Sh
+                    command: |-
+                      npm install
+                      npm test
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push to ECR
+                  identifier: Build_and_Push_to_ECR
+                  spec:
+                    connectorRef: <ECR_CONNECTOR_ID>
+                    repo: <YOUR_REPO_NAME>
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
